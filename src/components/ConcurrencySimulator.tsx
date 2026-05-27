@@ -47,6 +47,12 @@ export default function ConcurrencySimulator({
   const handleSimulate = async () => {
     if (doctors.length === 0 || patients.length === 0) return;
     
+    // Asegurar que el nivel de concurrencia activo sea válido (mínimo 1)
+    const activeConcurrency = concurrencyLevel < 1 ? 1 : concurrencyLevel;
+    if (concurrencyLevel < 1) {
+      setConcurrencyLevel(1);
+    }
+    
     setSimulating(true);
     onSimulationStart();
 
@@ -57,7 +63,7 @@ export default function ConcurrencySimulator({
     const requests = [];
     const startTime = performance.now();
 
-    for (let i = 0; i < concurrencyLevel; i++) {
+    for (let i = 0; i < activeConcurrency; i++) {
       // Tomamos un paciente aleatorio de la lista semilla
       const randomPatient = patients[Math.floor(Math.random() * patients.length)];
       
@@ -143,11 +149,11 @@ export default function ConcurrencySimulator({
     
     // Métricas calculadas
     const metrics: SimulationMetrics = {
-      totalRequests: concurrencyLevel,
+      totalRequests: activeConcurrency,
       createdCount: totalPhysicalRows,
       duplicateCount: duplicateCount,
-      duplicatePercent: Math.round((duplicateCount / concurrencyLevel) * 100),
-      avgTimeMs: Math.round(totalExecutionTime / concurrencyLevel),
+      duplicatePercent: Math.round((duplicateCount / activeConcurrency) * 100),
+      avgTimeMs: Math.round(totalExecutionTime / activeConcurrency),
       successCount,
       failedCount
     };
@@ -159,11 +165,11 @@ export default function ConcurrencySimulator({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           test_number: testNumber,
-          concurrent_requests: concurrencyLevel,
+          concurrent_requests: activeConcurrency,
           duplicates_generated: duplicateCount,
           execution_time_ms: totalExecutionTime,
           mode: hasConstraint ? 'Corregido' : 'Vulnerable',
-          total_requests: concurrencyLevel,
+          total_requests: activeConcurrency,
           successful_appointments: totalPhysicalRows
         })
       });
@@ -248,26 +254,56 @@ export default function ConcurrencySimulator({
 
         {/* SELECTOR DE CANTIDAD DE SOLICITUDES CONCURRENTES */}
         <div>
-          <label className="block text-xs font-semibold text-slate-450 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-indigo-400" />
-            Solicitudes Concurrentes Simultáneas
+            Cantidad de Solicitudes Concurrentes
           </label>
           <div className="grid grid-cols-3 gap-2">
-            {[5, 10, 20].map((num) => (
-              <button
-                key={num}
-                type="button"
-                onClick={() => setConcurrencyLevel(num)}
+            <button
+              type="button"
+              onClick={() => setConcurrencyLevel(1)}
+              disabled={simulating}
+              className={`py-2.5 px-3 rounded-lg text-xs md:text-sm font-semibold border transition-all col-span-1 flex items-center justify-center gap-1.5 ${
+                concurrencyLevel === 1
+                  ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-900/40'
+                  : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              } disabled:opacity-50`}
+            >
+              <span>1 Solicitud</span>
+            </button>
+            
+            <div className="relative col-span-2 flex items-center">
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={concurrencyLevel === 0 ? '' : concurrencyLevel}
+                onChange={(e) => {
+                  const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                  if (val === 0) {
+                    setConcurrencyLevel(0);
+                  } else if (!isNaN(val)) {
+                    // Limitar entre 1 y 100 para evitar saturación de red o Supabase
+                    setConcurrencyLevel(Math.max(1, Math.min(100, val)));
+                  }
+                }}
+                onBlur={() => {
+                  if (concurrencyLevel < 1) {
+                    setConcurrencyLevel(5); // Default de fallback a 5 si queda en blanco
+                  }
+                }}
                 disabled={simulating}
-                className={`py-2 px-3 rounded-lg text-xs md:text-sm font-semibold border transition-all ${
-                  concurrencyLevel === num
-                    ? 'bg-indigo-650 text-white border-indigo-500 shadow-md shadow-indigo-900/10'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
-                } disabled:opacity-50`}
-              >
-                {num} Requests
-              </button>
-            ))}
+                className={`w-full bg-slate-950 border rounded-lg pl-3 pr-24 py-2.5 text-slate-200 text-xs md:text-sm focus:border-indigo-500 focus:outline-none transition-all disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                  concurrencyLevel > 1
+                    ? 'border-indigo-500/50 shadow-md shadow-indigo-950/20'
+                    : 'border-slate-800'
+                }`}
+                placeholder="Personalizado"
+              />
+              <span className="absolute right-3 text-[11px] font-semibold text-slate-500 pointer-events-none select-none uppercase tracking-wider">
+                Solicitudes
+              </span>
+            </div>
           </div>
         </div>
 
