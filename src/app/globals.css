@@ -1,36 +1,53 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f19;
-  --foreground: #f8fafc;
+  --bg-primary: #1e1e1e;
+  --bg-sidebar: #252526;
+  --bg-panel: #2d2d2d;
+  --bg-input: #3c3c3c;
+  --bg-title: #3c3c3c;
+  --bg-hover: #2a2d2e;
+  --border: #3c3c3c;
+  --text-primary: #cccccc;
+  --text-muted: #858585;
+  --text-dim: #6e6e6e;
+  --blue-keyword: #569cd6;
+  --blue-accent: #007acc;
+  --blue-button: #0e639c;
+  --blue-button-hover: #1177bb;
+  --orange-function: #ce9178;
+  --green-string: #6a9955;
+  --green-accent: #4ec9b0;
+  --yellow-class: #dcdcaa;
+  --red-error: #f14c4c;
+  --red-dark-bg: #5a1d1d;
+  --pink-decorator: #c586c0;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
-/* Custom Scrollbar styled for the retro-dark look */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.3);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(97, 97, 97, 0.4);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.4);
+  background: rgba(97, 97, 97, 0.7);
 }
-

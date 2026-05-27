@@ -1,62 +1,63 @@
-// ============================================================================
-// PÁGINA PRINCIPAL: /src/app/page.tsx (Dashboard Académico)
-//
-// Es el ensamblador principal del laboratorio. Administra el estado,
-// realiza las consultas a Supabase y distribuye la información a los
-// componentes visuales de la interfaz.
-// ============================================================================
+"use client";
 
-'use client';
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
-import { Doctor, Patient, Appointment, SimulationResult, LogEntry, SimulationMetrics } from '@/types';
-import TechnicalExplainer from '@/components/TechnicalExplainer';
-import DbAdminPanel from '@/components/DbAdminPanel';
-import ConcurrencySimulator from '@/components/ConcurrencySimulator';
-import LogsConsole from '@/components/LogsConsole';
-import MetricsPanel from '@/components/MetricsPanel';
-import AppointmentsTable from '@/components/AppointmentsTable';
-import ExperimentalResults from '@/components/ExperimentalResults';
-import { Database, AlertCircle, Sparkles, BookOpen } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
+import {
+  Doctor,
+  Patient,
+  Appointment,
+  SimulationResult,
+  LogEntry,
+  SimulationMetrics,
+} from "@/types";
+import TechnicalExplainer from "@/components/TechnicalExplainer";
+import DbAdminPanel from "@/components/DbAdminPanel";
+import ConcurrencySimulator from "@/components/ConcurrencySimulator";
+import LogsConsole from "@/components/LogsConsole";
+import MetricsPanel from "@/components/MetricsPanel";
+import AppointmentsTable from "@/components/AppointmentsTable";
+import ExperimentalResults from "@/components/ExperimentalResults";
+import {
+  Database,
+  AlertCircle,
+  Play,
+  BookOpen,
+  Activity,
+  Server,
+} from "lucide-react";
 
 export default function Home() {
-  // --- ESTADOS DE DATOS DE BASE DE DATOS ---
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [simulations, setSimulations] = useState<SimulationResult[]>([]);
-  
-  // --- ESTADOS DE CONTROL Y COMPORTAMIENTO ---
   const [hasConstraint, setHasConstraint] = useState<boolean>(false);
   const [currentLogs, setCurrentLogs] = useState<LogEntry[]>([]);
-  const [currentMetrics, setCurrentMetrics] = useState<SimulationMetrics | null>(null);
-  
-  // --- ESTADOS DE CARGA ---
+  const [currentMetrics, setCurrentMetrics] =
+    useState<SimulationMetrics | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [simulating, setSimulating] = useState<boolean>(false);
   const [dbUninitialized, setDbUninitialized] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("simulator");
 
-  // --- REFRESCAR EL ESTADO DE LA RESTRICCIÓN UNIQUE ---
   const refreshConstraintStatus = async () => {
     try {
-      const res = await fetch('/api/db-admin');
+      const res = await fetch("/api/db-admin");
       if (res.ok) {
         const data = await res.json();
         setHasConstraint(!!data.hasConstraint);
       }
     } catch (err) {
-      console.error('Error al consultar estado de la restricción:', err);
+      console.error("Error al consultar estado de la restricción:", err);
     }
   };
 
-  // --- REFRESCAR LOS DATOS DE CITAS Y EXPERIMENTOS ---
   const refreshData = useCallback(async () => {
     try {
-      // 1. Citas Físicas en DB (cruzadas con médicos y pacientes para pintar nombres)
       const { data: appts, error: apptsError } = await supabase
-        .from('appointments')
-        .select(`
+        .from("appointments")
+        .select(
+          `
           id,
           doctor_id,
           patient_id,
@@ -65,34 +66,35 @@ export default function Home() {
           created_at,
           doctors ( id, name, specialty ),
           patients ( id, name )
-        `)
-        .order('id', { ascending: false });
+        `,
+        )
+        .order("id", { ascending: false });
 
       if (apptsError) throw apptsError;
       setAppointments((appts as unknown as Appointment[]) || []);
 
-      // 2. Historial de simulaciones
-      const simRes = await fetch('/api/simulations');
+      const simRes = await fetch("/api/simulations");
       if (simRes.ok) {
         const data = await simRes.json();
         setSimulations(data.data || []);
       }
     } catch (err) {
-      console.error('Error al refrescar listados de citas:', err);
+      console.error("Error al refrescar listados de citas:", err);
     }
   }, []);
 
-  // --- INICIALIZACIÓN: CARGA COMPLETA ---
   const initializeLaboratory = useCallback(async () => {
     setLoading(true);
     setDbUninitialized(false);
 
     try {
-      // Intentamos cargar Médicos y Pacientes (datos semilla)
-      const { data: docs, error: docsError } = await supabase.from('doctors').select('*');
-      const { data: pats, error: patsError } = await supabase.from('patients').select('*');
+      const { data: docs, error: docsError } = await supabase
+        .from("doctors")
+        .select("*");
+      const { data: pats, error: patsError } = await supabase
+        .from("patients")
+        .select("*");
 
-      // Si arroja error o vienen vacíos, indica que el alumno no ha corrido el script SQL
       if (docsError || patsError || !docs || docs.length === 0) {
         setDbUninitialized(true);
         setLoading(false);
@@ -102,13 +104,9 @@ export default function Home() {
       setDoctors(docs);
       setPatients(pats);
 
-      // Cargar citas, simulaciones y restricciones
-      await Promise.all([
-        refreshConstraintStatus(),
-        refreshData()
-      ]);
+      await Promise.all([refreshConstraintStatus(), refreshData()]);
     } catch (err) {
-      console.error('Error inicializando el laboratorio:', err);
+      console.error("Error inicializando el laboratorio:", err);
       setDbUninitialized(true);
     } finally {
       setLoading(false);
@@ -119,144 +117,209 @@ export default function Home() {
     initializeLaboratory();
   }, [initializeLaboratory]);
 
-  // --- ELIMINAR CITA INDIVIDUAL ---
   const handleDeleteAppointment = async (id: number) => {
     setLoading(true);
     try {
-      const { error } = await supabase.from('appointments').delete().eq('id', id);
+      const { error } = await supabase
+        .from("appointments")
+        .delete()
+        .eq("id", id);
       if (error) throw error;
       await refreshData();
     } catch (err) {
-      alert('Error al eliminar la cita: ' + (err as Error).message);
+      alert("Error al eliminar la cita: " + (err as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
-  // --- MANEJADORES DE SIMULACIÓN ---
   const handleSimulationStart = () => {
     setSimulating(true);
     setCurrentLogs([]);
     setCurrentMetrics(null);
   };
 
-  const handleSimulationComplete = (metrics: SimulationMetrics, logs: LogEntry[]) => {
+  const handleSimulationComplete = (
+    metrics: SimulationMetrics,
+    logs: LogEntry[],
+  ) => {
     setCurrentMetrics(metrics);
     setCurrentLogs(logs);
     setSimulating(false);
   };
 
+  const tabs = [
+    { id: "simulator", label: "Simulador", icon: Play },
+    { id: "database", label: "Base de Datos", icon: Database },
+    { id: "explainer", label: "Guia Teorica", icon: BookOpen },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#0b0f19] bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-950/20 via-[#0b0f19] to-[#0a0c10] text-slate-100 p-4 md:p-8 selection:bg-indigo-500/30 selection:text-white">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
-        {/* ENCABEZADO PRINCIPAL (ACADÉMICO) */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs px-3 py-1 rounded-full font-semibold mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Prototipo Académico de Concurrencia</span>
-            </div>
-            <h1 className="text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-slate-100 via-indigo-250 to-slate-100">
-              Simulador Científico de Race Conditions
-            </h1>
-            <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">
-              Analiza cómo la separación entre validación e inserción por software (TOCTOU) produce duplicidades de citas médicas, y experimenta cómo las restricciones de base de datos garantizan atomicidad.
-            </p>
+    <main className="min-h-screen bg-[#1e1e1e] text-[#cccccc] flex flex-col">
+      {/* VS Code Title Bar */}
+      <header className="bg-[#3c3c3c] border-b border-[#1e1e1e] px-4 py-2 flex items-center justify-between select-none drag-region flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-3 h-3 rounded-full bg-[#f14c4c]" />
+            <span className="w-3 h-3 rounded-full bg-[#dcdcaa]" />
+            <span className="w-3 h-3 rounded-full bg-[#6a9955]" />
           </div>
-          
-          <div className="flex items-center gap-2 self-start md:self-center">
-            <span className="font-mono text-xs bg-slate-900 border border-slate-800 text-slate-450 px-3 py-1.5 rounded-lg select-none">
-              v1.0.0-academic
-            </span>
-          </div>
-        </header>
+          <span className="text-xs text-[#858585] font-medium ml-2">
+            Laboratorio de Concurrencia
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-[11px]">
+          <span className="text-[#569cd6] font-semibold">Simulador Cientifico de Race Conditions</span>
+          <span className="text-[#858585]">-</span>
+          <span className="text-[#6a9955]">v1.0.0</span>
+        </div>
+      </header>
 
-        {/* ALERTA DE CONFIGURACIÓN DE BASE DE DATOS FALTANTE */}
-        {dbUninitialized && (
-          <div className="p-5 bg-amber-500/10 border border-amber-500/25 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center text-amber-300">
-            <AlertCircle className="w-8 h-8 flex-shrink-0 text-amber-400 animate-bounce" />
-            <div className="space-y-1 flex-1 text-sm leading-relaxed">
-              <span className="font-bold text-base block text-amber-200">🔌 Base de Datos no inicializada o credenciales incorrectas</span>
-              <p>
-                No se detectaron médicos o pacientes cargados en Supabase. Sigue estos dos pasos sencillos para arrancar:
-              </p>
-              <ul className="list-decimal list-inside pl-1 text-amber-300/85 mt-1 space-y-1 font-mono text-xs">
-                <li>Asegúrate de haber configurado las llaves en el archivo <code className="text-white bg-slate-900 px-1 py-0.5 rounded">.env.local</code>.</li>
-                <li>Copia y ejecuta el contenido del script <code className="text-white bg-slate-900 px-1 py-0.5 rounded">/sql/schema.sql</code> en el **SQL Editor** de tu cuenta de Supabase.</li>
-              </ul>
-            </div>
+      {/* VS Code Tab Bar */}
+      <nav className="bg-[#252526] border-b border-[#3c3c3c] flex items-center flex-shrink-0">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          return (
             <button
-              onClick={initializeLaboratory}
-              className="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-xs hover:bg-amber-400 transition-colors shadow-lg shadow-amber-950/20"
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-medium border-r border-[#3c3c3c] transition-colors ${
+                activeTab === tab.id
+                  ? "bg-[#1e1e1e] text-[#cccccc] border-t-2 border-t-[#007acc] mt-[-1px]"
+                  : "bg-[#2d2d2d] text-[#858585] hover:text-[#cccccc]"
+              }`}
             >
-              Reintentar Conexión
+              <Icon className="w-3.5 h-3.5" />
+              {tab.label}
             </button>
-          </div>
-        )}
+          );
+        })}
+        <div className="flex-1 bg-[#2d2d2d] h-full" />
+      </nav>
 
-        {!dbUninitialized && (
-          <div className="space-y-8 animate-fade-in">
-            {/* GRID SECCIÓN A: ADMINISTRACIÓN Y PARÁMETROS */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-              {/* PANEL DE POSTGRESQL (ADMIN) */}
-              <DbAdminPanel
-                hasConstraint={hasConstraint}
-                onRefreshStatus={refreshConstraintStatus}
-                onRefreshData={refreshData}
-              />
-
-              {/* PANEL DE CONCURRENCIA */}
-              <ConcurrencySimulator
-                doctors={doctors}
-                patients={patients}
-                hasConstraint={hasConstraint}
-                testNumber={simulations.length + 1}
-                onSimulationStart={handleSimulationStart}
-                onSimulationComplete={handleSimulationComplete}
-                onRefreshData={refreshData}
-              />
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:px-8 space-y-6">
+          {/* ALERTA DE CONFIGURACIÓN */}
+          {dbUninitialized && (
+            <div className="bg-[#2d2d2d] border border-[#3c3c3c] p-5 flex flex-col md:flex-row gap-4 items-start md:items-center text-[#dcdcaa]">
+              <AlertCircle className="w-8 h-8 flex-shrink-0 text-[#f14c4c]" />
+              <div className="space-y-1 flex-1 text-sm leading-relaxed">
+                <span className="font-bold text-base block text-[#cccccc]">
+                  Base de Datos no inicializada
+                </span>
+                <p className="text-[#858585]">
+                  No se detectaron medicos o pacientes cargados en Supabase.
+                </p>
+                <ul className="list-decimal list-inside pl-1 text-[#858585] mt-1 space-y-1 font-mono text-xs">
+                  <li>
+                    Configura las llaves en el archivo{" "}
+                    <code className="text-[#569cd6] bg-[#1e1e1e] px-1 py-0.5">
+                      .env.local
+                    </code>
+                    .
+                  </li>
+                  <li>
+                    Ejecuta el script{" "}
+                    <code className="text-[#569cd6] bg-[#1e1e1e] px-1 py-0.5">
+                      /sql/schema.sql
+                    </code>{" "}
+                    en el SQL Editor de Supabase.
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={initializeLaboratory}
+                className="px-4 py-2 bg-[#0e639c] hover:bg-[#1177bb] text-white font-medium rounded text-xs transition-colors flex-shrink-0"
+              >
+                Reintentar Conexion
+              </button>
             </div>
+          )}
 
-            {/* GRID SECCIÓN B: RESULTADOS Y TERMINAL LOGS */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-              {/* CONSOLA RETRO TERMINAL */}
-              <LogsConsole
-                logs={currentLogs}
-                simulating={simulating}
-              />
+          {!dbUninitialized && (
+            <div className="space-y-6">
+              {/* Tab content */}
+              {(activeTab === "simulator" || activeTab === "database") && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                  {activeTab === "database" ? (
+                    <>
+                      <DbAdminPanel
+                        hasConstraint={hasConstraint}
+                        onRefreshStatus={refreshConstraintStatus}
+                        onRefreshData={refreshData}
+                      />
+                      <AppointmentsTable
+                        appointments={appointments}
+                        onDeleteAppointment={handleDeleteAppointment}
+                        loading={loading}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <DbAdminPanel
+                        hasConstraint={hasConstraint}
+                        onRefreshStatus={refreshConstraintStatus}
+                        onRefreshData={refreshData}
+                      />
+                      <ConcurrencySimulator
+                        doctors={doctors}
+                        patients={patients}
+                        hasConstraint={hasConstraint}
+                        testNumber={simulations.length + 1}
+                        onSimulationStart={handleSimulationStart}
+                        onSimulationComplete={handleSimulationComplete}
+                        onRefreshData={refreshData}
+                      />
+                    </>
+                  )}
+                </div>
+              )}
 
-              {/* PANEL DE MÉTRICAS */}
-              <MetricsPanel
-                metrics={currentMetrics}
-              />
+              {(activeTab === "simulator") && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                  <LogsConsole logs={currentLogs} simulating={simulating} />
+                  <MetricsPanel metrics={currentMetrics} />
+                </div>
+              )}
+
+              {activeTab === "simulator" && (
+                <AppointmentsTable
+                  appointments={appointments}
+                  onDeleteAppointment={handleDeleteAppointment}
+                  loading={loading}
+                />
+              )}
+
+              {activeTab === "simulator" && (
+                <ExperimentalResults simulations={simulations} loading={loading} />
+              )}
+
+              {activeTab === "explainer" && (
+                <TechnicalExplainer />
+              )}
             </div>
-
-            {/* LISTADO DE CITAS CREADAS */}
-            <AppointmentsTable
-              appointments={appointments}
-              onDeleteAppointment={handleDeleteAppointment}
-              loading={loading}
-            />
-
-            {/* BITÁCORA EXPERIMENTAL DE PRUEBAS */}
-            <ExperimentalResults
-              simulations={simulations}
-              loading={loading}
-            />
-
-            {/* SECCIÓN INTERACTIVA EXPLICATIVA */}
-            <TechnicalExplainer />
-          </div>
-        )}
-
-        {/* PIE DE PÁGINA */}
-        <footer className="text-center text-xs text-slate-500 py-8 border-t border-slate-900 mt-12 space-y-1">
-          <p>© {new Date().getFullYear()} Laboratorio de Concurrencia Hospitalaria - Prototipo Didáctico de Demostración</p>
-          <p className="font-mono text-slate-655">Construido con Next.js 15, Supabase PostgreSQL, TypeScript y TailwindCSS</p>
-        </footer>
-
+          )}
+        </div>
       </div>
+
+      {/* VS Code Status Bar */}
+      <footer className="bg-[#007acc] text-white text-xs flex items-center justify-between px-4 py-1 flex-shrink-0 select-none">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1">
+            <Server className="w-3 h-3" />
+            {hasConstraint ? "Protegido" : "Vulnerable"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Activity className="w-3 h-3" />
+            {simulations.length} experimentos
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span>Ln 1, Col 1</span>
+          <span>UTF-8</span>
+          <span>TypeScript JSX</span>
+        </div>
+      </footer>
     </main>
   );
 }
