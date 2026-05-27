@@ -21,10 +21,10 @@ export default function ExperimentalResults({
         </div>
         <div>
           <h2 className="text-base font-bold text-[#cccccc]">
-            Bitacora Cientifica de Pruebas
+            Historial de Pruebas de Carga
           </h2>
           <p className="text-xs text-[#858585]">
-            Historial historico de simulaciones concurrentes
+            Registro de pruebas de concurrencia ejecutadas
           </p>
         </div>
       </div>
@@ -33,10 +33,10 @@ export default function ExperimentalResults({
         <div className="text-center py-12 text-[#858585] border border-dashed border-[#3c3c3c]">
           <History className="w-8 h-8 text-[#6e6e6e] mx-auto mb-2" />
           <p className="text-sm">
-            La bitacora de experimentos se encuentra vacia.
+            No hay pruebas registradas.
           </p>
           <p className="text-xs text-[#858585] mt-1">
-            Los resultados de cada simulacion se guardaran aqui automaticamente.
+            Los resultados de cada prueba de carga se guardaran automaticamente.
           </p>
         </div>
       ) : (
@@ -44,13 +44,13 @@ export default function ExperimentalResults({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#2d2d2d] border-b border-[#3c3c3c] text-xs font-semibold text-[#858585] uppercase tracking-wider">
-                <th className="p-3 text-center select-none w-20">Test #</th>
-                <th className="p-3">Modo Probado</th>
-                <th className="p-3 text-center">Concurrencia (Reqs)</th>
-                <th className="p-3 text-center">Duplicados Generados</th>
-                <th className="p-3 text-center">Citas Guardadas</th>
+                <th className="p-3 text-center select-none w-20">Prueba #</th>
+                <th className="p-3">Estado del Sistema</th>
+                <th className="p-3 text-center">Concurrencia</th>
+                <th className="p-3 text-center">Fallos de Integridad</th>
+                <th className="p-3 text-center">Citas Creadas</th>
                 <th className="p-3 text-center">Tiempo Total</th>
-                <th className="p-3 text-center">Fecha y Hora de Prueba</th>
+                <th className="p-3 text-center">Fecha</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#3c3c3c]/60 text-sm">
@@ -71,12 +71,12 @@ export default function ExperimentalResults({
                       {isVulnerable ? (
                         <div className="inline-flex items-center gap-1.5 text-[#f14c4c] font-bold text-xs">
                           <ShieldAlert className="w-4 h-4 flex-shrink-0" />
-                          <span>Vulnerable (Sin UNIQUE)</span>
+                          <span>Sin proteccion</span>
                         </div>
                       ) : (
                         <div className="inline-flex items-center gap-1.5 text-[#4ec9b0] font-bold text-xs">
                           <ShieldCheck className="w-4 h-4 flex-shrink-0" />
-                          <span>Corregido (UNIQUE Activo)</span>
+                          <span>Con proteccion</span>
                         </div>
                       )}
                     </td>

@@ -26,10 +26,10 @@ export default function LogsConsole({ logs, simulating }: LogsConsoleProps) {
         </div>
         <div>
           <h2 className="text-base font-bold text-[#cccccc]">
-            Consola de Eventos Simultaneos
+            Registro de Actividad
           </h2>
           <p className="text-xs text-[#858585]">
-            Linea de tiempo de hilos de ejecucion
+            Logs del servidor de reservas
           </p>
         </div>
       </div>
@@ -41,8 +41,8 @@ export default function LogsConsole({ logs, simulating }: LogsConsoleProps) {
               <Cpu className="w-8 h-8 text-[#6e6e6e]" />
               <p className="max-w-xs text-xs sm:text-sm">
                 {simulating
-                  ? "Gatillando peticiones concurrentes a la API..."
-                  : 'Esperando ejecucion del experimento... Elige tus opciones y presiona "Simular Race Condition".'}
+                  ? "Procesando solicitudes concurrentes..."
+                  : 'Esperando prueba de carga... Usa el panel "Probar Concurrencia" para simular multiples reservas simultaneas.'}
               </p>
             </div>
           ) : (
@@ -52,16 +52,17 @@ export default function LogsConsole({ logs, simulating }: LogsConsoleProps) {
               if (log.type === "warn") {
                 colorClass = "text-[#dcdcaa]";
               } else if (log.type === "success") {
-                colorClass = "text-[#6a9955]";
+                colorClass = "text-[#4ec9b0]";
               } else if (log.type === "error") {
                 colorClass = "text-[#f14c4c]";
               } else if (log.type === "info") {
-                if (log.msg.includes("CHECK")) {
-                  colorClass = "text-[#569cd6]";
-                } else if (log.msg.includes("USE")) {
-                  colorClass = "text-[#ce9178]";
-                }
+                colorClass = "text-[#569cd6]";
               }
+
+              let level = "INFO";
+              if (log.type === "warn") level = "WARN";
+              else if (log.type === "success") level = "OK";
+              else if (log.type === "error") level = "ERROR";
 
               return (
                 <div
@@ -71,7 +72,9 @@ export default function LogsConsole({ logs, simulating }: LogsConsoleProps) {
                   <span className="text-[#6e6e6e] flex-shrink-0 select-none">
                     [{log.time}]
                   </span>
-                  <span className="text-[#858585] select-none shrink-0">$</span>
+                  <span className="text-[#6e6e6e] flex-shrink-0 select-none w-10">
+                    {level}
+                  </span>
                   <span className="break-all">{log.msg}</span>
                 </div>
               );
@@ -83,16 +86,9 @@ export default function LogsConsole({ logs, simulating }: LogsConsoleProps) {
 
       {logs.length > 0 && (
         <div className="mt-4 p-3 bg-[#2d2d2d] border border-[#3c3c3c] text-[10px] text-[#858585] leading-relaxed font-mono">
-          <span className="font-bold text-[#569cd6]">
-            Pauta de Analisis para Estudiantes:
+          <span className="text-[#858585]">
+            Para depuracion: observa los timestamps y busca solicitudes que se solapen en el mismo milisegundo. Esa es la ventana donde ocurre la condicion de carrera.
           </span>
-          <p className="mt-1">
-            Examina los milisegundos: nota como multiples procesos de{" "}
-            <span className="text-[#569cd6]">CHECK (Busqueda)</span> se solaparon
-            antes de que el primero llegara a{" "}
-            <span className="text-[#ce9178]">USE (Insercion)</span>. Eso expone
-            el intervalo temporal vulnerable.
-          </p>
         </div>
       )}
     </div>
