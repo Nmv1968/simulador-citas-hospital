@@ -8,6 +8,7 @@
 -- ============================================================================
 
 -- 1. LIMPIEZA DE TABLAS PREVIAS (Por si se desea reiniciar desde cero)
+DROP TABLE IF EXISTS test_results CASCADE;
 DROP TABLE IF EXISTS simulation_results CASCADE;
 DROP TABLE IF EXISTS appointments CASCADE;
 DROP TABLE IF EXISTS patients CASCADE;
@@ -49,13 +50,13 @@ CREATE TABLE appointments (
 );
 
 -- ============================================================================
--- ENTIDAD: SIMULATION_RESULTS (Historial de experimentos científicos)
+-- ENTIDAD: TEST_RESULTS (Historial de experimentos científicos)
 --
 -- Guarda las métricas agregadas de cada simulación concurrente ejecutada.
 -- Sirve para analizar cuantitativamente la diferencia entre el modo vulnerable
 -- y el modo protegido.
 -- ============================================================================
-CREATE TABLE simulation_results (
+CREATE TABLE test_results (
     id SERIAL PRIMARY KEY,
     test_number INT NOT NULL,              -- Identificador de prueba secuencial
     concurrent_requests INT NOT NULL,      -- Cantidad de solicitudes lanzadas (5, 10, 20)

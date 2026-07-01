@@ -97,7 +97,7 @@ Porque el codigo se ejecuta en multiples hilos/servidores simultaneamente. La ba
 │  │  ├───────────┤  ├───────────┤            │     │
 │  │  │ appointments (tabla vulnerable)       │     │
 │  │  ├───────────────────────────────────────┤     │
-│  │  │ simulation_results (historial)        │     │
+│  │  │ test_results (historial)              │     │
 │  │  └───────────────────────────────────────┘     │
 │  └──────────────────────────────────────────┘     │
 └──────────────────────────────────────────────────┘
@@ -148,7 +148,7 @@ npm install
 3. Haz clic en **New Query**.
 4. Abre el archivo `sql/schema.sql` de este proyecto, copia todo su contenido y pegalo en el editor.
 5. Haz clic en **Run** para ejecutar el script.
-   - Este script crea las tablas `doctors`, `patients`, `appointments` y `simulation_results`.
+   - Este script crea las tablas `doctors`, `patients`, `appointments` y `test_results`.
    - Inserta 4 medicos y 8 pacientes de prueba.
    - Crea las funciones `exec_ddl_query` y `check_unique_constraint` necesarias para el laboratorio.
 
@@ -255,7 +255,7 @@ simulador-citas-hospital/
 
 > **Nota academica clave:** Esta tabla se crea **SIN** la restriccion UNIQUE en `(doctor_id, appointment_date, appointment_time)`. Esto permite emular el "Estado Vulnerable" donde la validacion depende unicamente del codigo.
 
-### Tabla: `simulation_results`
+### Tabla: `test_results`
 
 | Columna | Tipo | Restricciones |
 |---|---|---|

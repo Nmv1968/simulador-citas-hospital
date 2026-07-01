@@ -6,7 +6,7 @@ import {
   Doctor,
   Patient,
   Appointment,
-  SimulationResult,
+  TestResult,
   LogEntry,
   SimulationMetrics,
 } from "@/types";
@@ -34,7 +34,7 @@ export default function Home() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [simulations, setSimulations] = useState<SimulationResult[]>([]);
+  const [simulations, setSimulations] = useState<TestResult[]>([]);
   const [hasConstraint, setHasConstraint] = useState<boolean>(false);
   const [currentLogs, setCurrentLogs] = useState<LogEntry[]>([]);
   const [currentMetrics, setCurrentMetrics] =

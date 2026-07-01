@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 export async function GET() {
   try {
     const { data: simulations, error } = await supabase
-      .from('simulation_results')
+      .from('test_results')
       .select('*')
       .order('id', { ascending: false });
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Insertamos el registro en PostgreSQL
     const { data, error: insertError } = await supabase
-      .from('simulation_results')
+      .from('test_results')
       .insert({
         test_number,
         concurrent_requests,

@@ -90,7 +90,8 @@ export async function POST(req: NextRequest) {
       success: true,
       message: action === 'apply' 
         ? 'Restricción UNIQUE aplicada exitosamente. ¡Integridad garantizada!' 
-        : 'Restricción UNIQUE eliminada. Sistema expuesto a race conditions.'
+        : 'Restricción UNIQUE eliminada. Sistema expuesto a race conditions.',
+      executedSql: queryText.trim()
     });
 
   } catch (error: any) {

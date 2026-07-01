@@ -28,7 +28,7 @@ export interface Appointment {
   patients?: Patient;
 }
 
-export interface SimulationResult {
+export interface TestResult {
   id: number;
   test_number: number;
   concurrent_requests: number;

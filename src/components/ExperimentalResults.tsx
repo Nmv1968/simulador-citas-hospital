@@ -2,10 +2,10 @@
 
 import React from "react";
 import { History, ShieldAlert, ShieldCheck } from "lucide-react";
-import { SimulationResult } from "@/types";
+import { TestResult } from "@/types";
 
 interface ExperimentalResultsProps {
-  simulations: SimulationResult[];
+  simulations: TestResult[];
   loading: boolean;
 }
 
