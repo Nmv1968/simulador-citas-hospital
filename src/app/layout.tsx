@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Laboratorio de Concurrencia | Simulador de Race Conditions",
-  description: "Prototipo académico diseñado para simular, medir y corregir condiciones de carrera (race conditions) en reservas concurrentes utilizando Supabase y PostgreSQL.",
+  title: "Laboratorio de Concurrencia | Test de Race Conditions",
+  description:
+    "Prototipo académico diseñado para simular, medir y corregir condiciones de carrera (race conditions) en reservas concurrentes utilizando Supabase y PostgreSQL.",
 };
 
 export default function RootLayout({

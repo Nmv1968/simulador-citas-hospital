@@ -178,7 +178,7 @@ export default function ConcurrencySimulator({
         </div>
         <div>
           <h2 className="text-base font-bold text-[#cccccc]">
-            Simulador de Concurrencia
+            Test de Concurrencia
           </h2>
           <p className="text-xs text-[#858585]">
             Gatillador de Peticiones en Paralelo

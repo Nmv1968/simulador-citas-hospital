@@ -75,7 +75,7 @@ export default function AppointmentScheduler() {
 
   useEffect(() => {
     loadData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dateFrom, dateTo, doctorFilter]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Esta seguro de eliminar esta cita?")) return;
