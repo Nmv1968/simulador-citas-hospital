@@ -24,7 +24,12 @@ const NAV_ITEMS = [
   { id: "pacientes", label: "Pacientes", icon: Users, action: true },
   { id: "medicos", label: "Medicos", icon: Stethoscope, action: true },
   { id: "reportes", label: "Reportes", icon: BarChart3, action: false },
-  { id: "configuracion", label: "Configuracion", icon: Settings, action: false },
+  {
+    id: "configuracion",
+    label: "Configuracion",
+    icon: Settings,
+    action: false,
+  },
 ];
 
 export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
@@ -38,7 +43,7 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
           </div>
           <div>
             <p className="text-sm font-bold text-slate-800">Salud +</p>
-            <p className="text-xs text-slate-400">Sistemas de citas</p>
+            <p className="text-xs text-slate-400">Sistemas de citas médicas</p>
           </div>
         </div>
       </div>
@@ -77,7 +82,9 @@ export default function Sidebar({ currentView, onNavigate }: SidebarProps) {
             <User className="w-5 h-5 text-slate-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-slate-800 truncate">Usuario</p>
+            <p className="text-sm font-medium text-slate-800 truncate">
+              Usuario
+            </p>
             <p className="text-xs text-slate-400 truncate">Recepcionista</p>
           </div>
           <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
