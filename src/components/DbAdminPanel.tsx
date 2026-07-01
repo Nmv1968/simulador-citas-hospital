@@ -55,8 +55,13 @@ export default function DbAdminPanel({
 
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        setErrorMessage(data.academicNotice || data.error);
+      if (data.executedSql) {
+        if (!res.ok || !data.success) {
+          addTerminalLog(data.executedSql, `ERROR: ${data.academicNotice || data.error}`, true);
+          setErrorMessage(data.academicNotice || data.error);
+        } else {
+          addTerminalLog(data.executedSql, "OK - Restricción aplicada exitosamente.");
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Error de red");
@@ -79,8 +84,13 @@ export default function DbAdminPanel({
 
       const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        setErrorMessage(data.error);
+      if (data.executedSql) {
+        if (!res.ok || !data.success) {
+          addTerminalLog(data.executedSql, `ERROR: ${data.error}`, true);
+          setErrorMessage(data.error);
+        } else {
+          addTerminalLog(data.executedSql, "OK - Restricción eliminada.");
+        }
       }
     } catch (err: any) {
       setErrorMessage(err.message || "Error de red");

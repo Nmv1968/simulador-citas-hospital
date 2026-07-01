@@ -82,7 +82,8 @@ export async function POST(req: NextRequest) {
         success: false,
         code: data.code,
         error: `PostgreSQL rechazó la alteración: ${data.error}`,
-        academicNotice: 'No se puede activar la restricción UNIQUE porque ya existen citas duplicadas en la tabla. PostgreSQL exige limpiar (TRUNCATE) los datos inconsistentes primero.'
+        academicNotice: 'No se puede activar la restricción UNIQUE porque ya existen citas duplicadas en la tabla. PostgreSQL exige limpiar (TRUNCATE) los datos inconsistentes primero.',
+        executedSql: queryText.trim()
       }, { status: 409 });
     }
 
