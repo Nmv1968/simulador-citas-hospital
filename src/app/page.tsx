@@ -78,7 +78,7 @@ export default function Home() {
       if (apptsError) throw apptsError;
       setAppointments((appts as unknown as Appointment[]) || []);
 
-      const simRes = await fetch("/api/simulations");
+      const simRes = await fetch("/api/tests");
       if (simRes.ok) {
         const data = await simRes.json();
         setSimulations(data.data || []);

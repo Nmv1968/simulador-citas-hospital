@@ -1,5 +1,5 @@
 // ============================================================================
-// ENDPOINT DE SIMULACIONES HISTÓRICAS: /api/simulations
+// ENDPOINT DE SIMULACIONES HISTÓRICAS: /api/tests
 //
 // Este endpoint permite almacenar y recuperar el historial de simulaciones
 // académicas ejecutadas. Sirve como registro de evidencia científica para

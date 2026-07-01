@@ -148,7 +148,7 @@ export default function ConcurrencySimulator({
     };
 
     try {
-      await fetch("/api/simulations", {
+      await fetch("/api/tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
