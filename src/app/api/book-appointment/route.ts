@@ -25,6 +25,21 @@ export async function POST(req: NextRequest) {
   const { doctorId, patientId, date, time, requestId, delayMs = 1500, doctorName } = await req.json();
 
   const idLog = `[${requestId}]`;
+
+  let formattedDateTime = `${date} ${time}`;
+  try {
+    if (date && time) {
+      const dateParts = date.split('-');
+      const timeParts = time.split(':');
+      if (dateParts.length === 3 && timeParts.length >= 2) {
+        const [year, month, day] = dateParts;
+        const [hour, minute] = timeParts;
+        formattedDateTime = `${day}/${month}/${year} ${hour}:${minute}`;
+      }
+    }
+  } catch (e) {
+    // En caso de error inesperado, usar el formato original
+  }
   
   logs.push({ 
     time: getTimestamp(), 
@@ -68,7 +83,7 @@ export async function POST(req: NextRequest) {
         success: false,
         requestId,
         logs,
-        error: 'El médico ya tiene una cita en esta fecha y hora.'
+        error: `El médico ya tiene una cita en el horario ${formattedDateTime}`
       }, { status: 400 });
     }
 
@@ -131,11 +146,12 @@ export async function POST(req: NextRequest) {
           msg: `${idLog} 🛑 ¡RECHAZADO POR POSTGRESQL! Violación de restricción UNIQUE (Código 23505).`, 
           type: 'error' 
         });
+
         return NextResponse.json({
           success: false,
           requestId,
           logs,
-          error: 'Bloqueado por base de datos: Conflicto de integridad (UNIQUE constraint).'
+          error: `El médico ya tiene una cita en el horario ${formattedDateTime}`
         }, { status: 409 });
       }
       throw insertError;
