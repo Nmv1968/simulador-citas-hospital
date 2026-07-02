@@ -313,7 +313,7 @@ export default function ConcurrencySimulator({
             ) : (
               <>
                 <Play className="w-4 h-4 fill-white" />
-                <span>Simular Race Condition</span>
+                <span>Test Race Condition</span>
               </>
             )}
           </button>
